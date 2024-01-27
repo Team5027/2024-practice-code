@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.lang.Math;
 
 
 public class Robot extends TimedRobot {
@@ -194,9 +195,11 @@ startTime = Timer.getFPGATimestamp();
   public void teleopPeriodic() {
     double xSpeed = joy1.getRawAxis(1);
     double zRotation = joy1.getRawAxis(2);
-    _drive.arcadeDrive(xSpeed * 0.3, zRotation * 0.3);
-    _drive.arcadeDrive(xSpeed, zRotation);
 
+System.out.println( "Speed: " + xSpeed +"\nRotation: " + zRotation);   
+    _drive.arcadeDrive(Math.pow(xSpeed,3) , Math.pow(zRotation,3));
+
+  
   
 
     if(joy1.getRawButtonPressed(2)){
