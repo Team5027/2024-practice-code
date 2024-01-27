@@ -73,6 +73,7 @@ public class Robot extends TimedRobot {
 
   //motor variables
   NeutralMode currentModeBrake = NeutralMode.Coast;
+  boolean isArcadeDrive = true;
 
   
   double kP = 0;
@@ -193,17 +194,25 @@ startTime = Timer.getFPGATimestamp();
 
   @Override
   public void teleopPeriodic() {
+    //gets raw axis on the joystick
     double xSpeed = joy1.getRawAxis(1);
     double zRotation = joy1.getRawAxis(2);
+    double tankLeft=joy1.getRawAxis(1);
+    double tankRight=joy1.getRawAxis(3);
 
-System.out.println( "Speed: " + xSpeed +"\nRotation: " + zRotation);   
-    _drive.arcadeDrive(Math.pow(xSpeed,3) , Math.pow(zRotation,3));
+//System.out.println( "Speed: " + xSpeed +"\nRotation: " + zRotation);   
 
+//if arcade drive = true, call the arcade drive method to enable arcade drive
+//else enables tank drive
+if(isArcadeDrive){
+    _drive.arcadeDrive(Math.pow(xSpeed,3) , Math.pow(zRotation,3), false);
+} else{
+    _drive.tankDrive(Math.pow(tankLeft,3), Math.pow(tankRight,3), false);
+}
   
   
-
+//if button A pressed, switches to coast to brake mode and vice versa
     if(joy1.getRawButtonPressed(2)){
-
       if (currentModeBrake==NeutralMode.Coast){
         System.out.println("changing to brake");
         currentModeBrake = NeutralMode.Brake;
@@ -213,10 +222,17 @@ System.out.println( "Speed: " + xSpeed +"\nRotation: " + zRotation);
         currentModeBrake = NeutralMode.Coast;
       }
 
+      //setting motor modes to current value of current mode!!!!!!
       leftFrontMotor.setNeutralMode(currentModeBrake);
       rightFrontMotor.setNeutralMode(currentModeBrake);
       leftRearMotor.setNeutralMode(currentModeBrake);
       rightRearMotor.setNeutralMode(currentModeBrake);
+    }
+
+    //if button X pressed, changes between arcade and tank 
+    if(joy1.getRawButtonPressed(1)){
+      isArcadeDrive = !isArcadeDrive;
+      System.out.println("currently arcade?: " + isArcadeDrive);
     }
   }
 
