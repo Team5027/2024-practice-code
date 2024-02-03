@@ -6,13 +6,6 @@
 
 package frc.robot;
 
-//import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Encoder; 
-//import edu.wpi.first.wpilibj.XboxController;
-//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kForward;
-//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
-//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
-
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 //import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -25,6 +18,12 @@ import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.networktables.NetworkTable;
 // intake - pneumatics
 import edu.wpi.first.networktables.NetworkTableEntry;
+//import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Encoder; 
+//import edu.wpi.first.wpilibj.XboxController;
+//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kForward;
+//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
+//import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
 //import edu.wpi.first.wpilibj.Compressor;
 //import edu.wpi.first.wpilibj.DoubleSolenoid;
 //import edu.wpi.first.wpilibj.DigitalInput;
@@ -39,7 +38,6 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.lang.Math;
 
 
 public class Robot extends TimedRobot {
@@ -77,6 +75,8 @@ public class Robot extends TimedRobot {
 
   //encoders
   Encoder encoder1 = new Encoder(0,1);
+  int motorPosition = 0; //integer between 0-360
+  boolean isForward = true;
   
   double kP = 0;
   double kI = 0;
@@ -197,6 +197,19 @@ startTime = Timer.getFPGATimestamp();
 
   @Override
   public void teleopPeriodic() {
+    if(isForward){
+      if (motorPosition<360){
+          motorPosition++;
+      }
+    }else{
+      if(motorPosition>0){
+      motorPosition--;
+      }
+    }
+    if(joy1.getRawButtonPressed(4)){
+      isForward = !isForward;
+    }
+        System.out.println("current motor position: "+ motorPosition);
     //gets raw axis on the joystick
     double xSpeed = joy1.getRawAxis(1);
     double zRotation = joy1.getRawAxis(2);
@@ -212,7 +225,6 @@ if(isArcadeDrive){
 } else{
     _drive.tankDrive(Math.pow(tankLeft,3), Math.pow(tankRight,3), false);
 }
-  
   
 //if button A pressed, switches to coast to brake mode and vice versa
     if(joy1.getRawButtonPressed(2)){
@@ -239,6 +251,8 @@ if(isArcadeDrive){
     }
     //prints out distance value
     System.out.println("current encoder value: " + encoder1.getDistance());
+
+
   }
 
   /** This function is called once when the robot is disabled. */
