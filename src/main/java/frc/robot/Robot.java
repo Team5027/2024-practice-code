@@ -7,7 +7,7 @@
 package frc.robot;
 
 //import edu.wpi.first.networktables.NetworkTableInstance;
-//import edu.wpi.first.wpilibj.Encoder; 
+import edu.wpi.first.wpilibj.Encoder; 
 //import edu.wpi.first.wpilibj.XboxController;
 //import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kForward;
 //import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
@@ -75,6 +75,8 @@ public class Robot extends TimedRobot {
   NeutralMode currentModeBrake = NeutralMode.Coast;
   boolean isArcadeDrive = true;
 
+  //encoders
+  Encoder encoder1 = new Encoder(0,1);
   
   double kP = 0;
   double kI = 0;
@@ -97,6 +99,7 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture();
     CvSink cvSink = CameraServer.getVideo();
 
+    encoder1.reset();
 // Creates the CvSource and MjpegServer [2] and connects them
 // CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
 
@@ -234,6 +237,8 @@ if(isArcadeDrive){
       isArcadeDrive = !isArcadeDrive;
       System.out.println("currently arcade?: " + isArcadeDrive);
     }
+    //prints out distance value
+    System.out.println("current encoder value: " + encoder1.getDistance());
   }
 
   /** This function is called once when the robot is disabled. */
