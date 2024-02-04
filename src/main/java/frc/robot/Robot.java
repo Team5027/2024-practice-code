@@ -18,15 +18,15 @@ import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.networktables.NetworkTable;
 // intake - pneumatics
 import edu.wpi.first.networktables.NetworkTableEntry;
-//import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Encoder; 
 //import edu.wpi.first.wpilibj.XboxController;
 //import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kForward;
 //import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
 //import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
 //import edu.wpi.first.wpilibj.Compressor;
 //import edu.wpi.first.wpilibj.DoubleSolenoid;
-//import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
+//import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Encoder;
 //controller
 import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -64,6 +64,7 @@ public class Robot extends TimedRobot {
   WPI_VictorSPX rightFrontMotor = new WPI_VictorSPX(can3);
   WPI_VictorSPX leftRearMotor = new WPI_VictorSPX(can0);
   WPI_VictorSPX rightRearMotor = new WPI_VictorSPX(can2);
+  WPI_VictorSPX motorX= new WPI_VictorSPX(can5);
 
   MotorController rightSide = new MotorControllerGroup(rightFrontMotor, rightRearMotor);
   MotorController leftSide = new MotorControllerGroup(leftFrontMotor, leftRearMotor);
@@ -75,8 +76,14 @@ public class Robot extends TimedRobot {
 
   //encoders
   Encoder encoder1 = new Encoder(0,1);
-  int motorPosition = 0; //integer between 0-360
+  double motorPosition = 180; //integer between 0-360
   boolean isForward = true;
+  boolean stopped = true;
+  double motorSpeed = 0.5;
+
+  //limit switch
+  DigitalInput toplimitSwitch = new DigitalInput(1);
+  DigitalInput secondLimitSwitch = new DigitalInput(1);
   
   double kP = 0;
   double kI = 0;
@@ -100,6 +107,7 @@ public class Robot extends TimedRobot {
     CvSink cvSink = CameraServer.getVideo();
 
     encoder1.reset();
+    
 // Creates the CvSource and MjpegServer [2] and connects them
 // CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
 
@@ -199,17 +207,20 @@ startTime = Timer.getFPGATimestamp();
   public void teleopPeriodic() {
     if(isForward){
       if (motorPosition<360){
-          motorPosition++;
+          //motorPosition+= motorSpeed;
+          motorX.set(motorSpeed);
       }
     }else{
-      if(motorPosition>0){
-      motorPosition--;
+      if(motorPosition > 0){
+      //motorPosition-= motorSpeed;
+      motorX.set(-motorSpeed);
       }
     }
     if(joy1.getRawButtonPressed(4)){
       isForward = !isForward;
     }
-        System.out.println("current motor position: "+ motorPosition);
+       
+  System.out.println("current motor position: "+ motorPosition);
     //gets raw axis on the joystick
     double xSpeed = joy1.getRawAxis(1);
     double zRotation = joy1.getRawAxis(2);
@@ -250,9 +261,25 @@ if(isArcadeDrive){
       System.out.println("currently arcade?: " + isArcadeDrive);
     }
     //prints out distance value
-    System.out.println("current encoder value: " + encoder1.getDistance());
-
-
+    //System.out.println("current encoder value: " + encoder1.getDistance());
+    
+    //limit switches - theyre reversed idk why help me
+    if(!toplimitSwitch.get()){
+      // System.out.println("limit switch not pressed");
+      if(isForward){
+        motorSpeed = 0;
+        isForward= false;
+      }
+    }
+    if(!secondLimitSwitch.get()){
+      if(!isForward){
+        motorSpeed = 0;
+        isForward= true;
+      }
+    }
+if (joy1.getRawButtonPressed(3)){
+  motorSpeed = 0.5;
+}
   }
 
   /** This function is called once when the robot is disabled. */
